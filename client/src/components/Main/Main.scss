@@ -1,0 +1,11 @@
+.main {
+  position: relative;
+  height: 100vh;
+
+  .control_block {
+    z-index: 100;
+    padding: 1.5rem;
+    background-color: #ccc;
+    border-radius: 0.5rem;
+  }
+}

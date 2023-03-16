@@ -1,0 +1,23 @@
+.toolbox {
+  position: fixed;
+  top: 400px;
+  left: 1.5rem;
+
+  .toolbox__tools {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+
+    .fa-icon {
+      margin: 1rem 0;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #eee;
+      transition: color 0.2s ease-in-out;
+      &:hover {
+        color: black;
+      }
+    }
+  }
+}

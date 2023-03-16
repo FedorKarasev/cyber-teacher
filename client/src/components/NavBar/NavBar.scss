@@ -1,0 +1,19 @@
+.navbar {
+  position: fixed;
+  display: flex;
+  gap: 1.5rem;
+  top: 1.5rem;
+  left: 1.5rem;
+
+  .logo {
+    font-weight: bold;
+  }
+
+  .navigation {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+}
