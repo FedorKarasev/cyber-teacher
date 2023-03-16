@@ -1,29 +1,73 @@
 import React, { useRef, useEffect, useState } from 'react';
 import './Board.scss';
 import { useSelector, useDispatch } from 'react-redux';
-import { pushToUndo, pushToRedo, setCanvas } from '../../store/canvasSlice';
+import { pushToUndo, pushToRedo, setCanvas, setUserName, setSocket, setSessionId } from '../../store/canvasSlice';
 import { setTool } from '../../store/toolSlice';
 import Brush from '../../tools/Brush';
+import { useParams } from 'react-router-dom';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
+import { Button, Modal } from 'react-bootstrap';
 
 export const Board = () => {
   const canvasRef = useRef();
-  const canvas = useSelector((state) => state.canvas.canvas);
+  const canvas = useSelector((state) => state.canvas);
   const tool = useSelector((state) => state.tool.tool);
   const dispatch = useDispatch();
-  const connectionHandler = () => {};
+  const userNameRef = useRef();
+  const [modal, setModal] = useState(true);
+  const params = useParams();
 
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const connectionHandler = () => {
+    dispatch(setUserName(userNameRef.current.value));
+    setModal(false);
+  };
 
   useEffect(() => {
     dispatch(setCanvas(canvasRef.current));
-    dispatch(setTool(new Brush(canvasRef.current)));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (canvas.userName) {
+      const socket = new WebSocket('ws://localhost:5000');
+      dispatch(setSocket(socket));
+      dispatch(setSessionId(params.id));
+      dispatch(setTool(new Brush(canvasRef.current, socket, params.id)));
+      socket.onopen = () => {
+        socket.send(
+          JSON.stringify({
+            id: params.id,
+            userName: canvas.userName,
+            method: 'connection',
+          })
+        );
+      };
+      socket.onmessage = (event) => {
+        let msg = JSON.parse(event.data);
+        switch (msg.method) {
+          case 'connection':
+            console.log('Подключен');
+            break;
+          case 'draw':
+            drawHandler(msg);
+            break;
+        }
+      };
+    }
+  }, [canvas.userName]);
+
+  const drawHandler = (msg) => {
+    const figure = msg.figure;
+    const ctx = canvasRef.current.getContext('2d');
+    switch (figure.type) {
+      case 'brush':
+        Brush.draw(ctx, figure.x, figure.y);
+        break;
+      case 'finish':
+        ctx.beginPath();
+        break;
+    }
+  };
 
   const mouseDownHandler = () => {
     dispatch(pushToUndo(canvasRef.current.toDataURL()));
@@ -31,16 +75,19 @@ export const Board = () => {
 
   return (
     <>
-      <Modal show={show} onHide={handleClose} backdrop='static' keyboard={false}>
+      <Modal show={modal} onHide='' backdrop='static' keyboard={false}>
         <Modal.Header closeButton>
-          <Modal.Title>Modal title</Modal.Title>
+          <Modal.Title>Log In</Modal.Title>
         </Modal.Header>
-        <Modal.Body>I will not close if you click outside me. Don't even try to press escape key.</Modal.Body>
+        <Modal.Body>
+          <label htmlFor='name'>Введите ваше имя</label>
+          <br />
+          <input ref={userNameRef} id='name' type='text' />
+        </Modal.Body>
         <Modal.Footer>
-          <Button variant='secondary' onClick={handleClose}>
-            Close
+          <Button variant='primary' onClick={connectionHandler}>
+            Войти
           </Button>
-          <Button variant='primary'>Understood</Button>
         </Modal.Footer>
       </Modal>
       <canvas
