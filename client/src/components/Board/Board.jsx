@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Modal } from 'react-bootstrap';
+import Rectangle from '../../tools/Rectangle';
 
 export const Board = () => {
   const canvasRef = useRef();
@@ -62,6 +63,9 @@ export const Board = () => {
     switch (figure.type) {
       case 'brush':
         Brush.draw(ctx, figure.x, figure.y);
+        break;
+      case 'rectangle':
+        Rectangle.staticDraw(ctx, figure.x, figure.y, figure.width, figure.height, figure.color);
         break;
       case 'finish':
         ctx.beginPath();

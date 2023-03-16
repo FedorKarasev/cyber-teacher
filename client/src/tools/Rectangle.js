@@ -1,8 +1,8 @@
 import Tool from './Tool';
 
 export default class Rectangle extends Tool {
-  constructor(canvas) {
-    super(canvas);
+  constructor(canvas, socket, sessionId) {
+    super(canvas, socket, sessionId);
     this.listen();
   }
 
@@ -14,6 +14,20 @@ export default class Rectangle extends Tool {
 
   mouseUpHandler(e) {
     this.mouseDown = false;
+    this.socket.send(
+      JSON.stringify({
+        method: 'draw',
+        id: this.sessionId,
+        figure: {
+          type: 'rectangle',
+          x: this.startX,
+          y: this.startY,
+          width: this.width,
+          height: this.height,
+          color: this.ctx.fillStyle,
+        },
+      })
+    );
   }
 
   mouseDownHandler(e) {
@@ -30,10 +44,18 @@ export default class Rectangle extends Tool {
     if (this.mouseDown) {
       const currentX = e.pageX - e.target.offsetLeft;
       const currentY = e.pageY - e.target.offsetTop;
-      let width = currentX - this.startX;
-      let heigth = currentY - this.startY;
-      this.draw(this.startX, this.startY, width, heigth);
+      this.width = currentX - this.startX;
+      this.height = currentY - this.startY;
+      this.draw(this.startX, this.startY, this.width, this.heigth);
     }
+  }
+
+  static staticDraw(ctx, x, y, w, h, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    ctx.fill();
+    ctx.stroke();
   }
 
   draw(x, y, w, h) {

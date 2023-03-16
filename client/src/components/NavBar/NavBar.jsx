@@ -2,10 +2,22 @@ import React from 'react';
 import './NavBar.scss';
 import { setLineWidth, setStrokeColor } from '../../store/toolSlice';
 import { asyncUndo, redo } from '../../store/canvasSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export const NavBar = () => {
   const dispatch = useDispatch();
+
+  const canvas = useSelector((state) => state.canvas);
+
+  const download = () => {
+    const dataURL = canvas.canvas.toDataURL();
+    const a = document.createElement('a');
+    a.href = dataURL;
+    a.download = canvas.sessionId + '.jpg';
+    document.body.append(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
   return (
     <div className='navbar control_block'>
@@ -15,7 +27,9 @@ export const NavBar = () => {
           <a>Поделиться</a>
         </li>
         <li>
-          <a>Сохранить</a>
+          <a href='#' onClick={download}>
+            Сохранить
+          </a>
         </li>
         <li>
           <a>Настройки</a>

@@ -15,7 +15,7 @@ export const ToolBox = () => {
   const windowHeight = document.documentElement.clientHeight;
   const ref = useRef(null);
 
-  const canvas = useSelector((state) => state.canvas.canvas);
+  const canvas = useSelector((state) => state.canvas);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -35,20 +35,20 @@ export const ToolBox = () => {
         <li>
           <FontAwesomeIcon icon={solid('hand')} className='fa-icon' />
         </li>
-        <li onClick={() => dispatch(setTool(new Eraser(canvas)))}>
+        <li onClick={() => dispatch(setTool(new Eraser(canvas.canvas)))}>
           <FontAwesomeIcon icon={solid('eraser')} className='fa-icon' />
         </li>
-        <li onClick={() => dispatch(setTool(new Brush(canvas)))}>
+        <li onClick={() => dispatch(setTool(new Brush(canvas.canvas, canvas.socket, canvas.sessionId)))}>
           <FontAwesomeIcon icon={solid('pen')} className='fa-icon' />
         </li>
-        <li onClick={() => dispatch(setTool(new Line(canvas)))}>
+        <li onClick={() => dispatch(setTool(new Line(canvas.canvas)))}>
           <FontAwesomeIcon icon={solid('slash')} className='fa-icon' />
         </li>
         <li>
           <FontAwesomeIcon
             icon={regular('square')}
             className='fa-icon'
-            onClick={() => dispatch(setTool(new Rectangle(canvas)))}
+            onClick={() => dispatch(setTool(new Rectangle(canvas.canvas, canvas.socket, canvas.sessionId)))}
           />
         </li>
         <li onClick={() => dispatch(setTool(new Circle(canvas)))}>
